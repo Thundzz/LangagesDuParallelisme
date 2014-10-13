@@ -1,0 +1,7 @@
+#PBS -N exo2
+
+#PBS -l walltime=00:00:30 
+#PBS -l nodes=2:ppn=4 
+
+module add compiler/gcc/4.9.0 mpi/openmpi/1.8.1 
+mpiexec -np 5 LangagesDuParallelisme/exo2
