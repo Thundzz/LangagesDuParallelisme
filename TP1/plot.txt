@@ -1,0 +1,15 @@
+set   autoscale                        # scale axes automatically
+unset log                              # remove any log-scaling
+#set logscale y
+unset label                            # remove any previous labels
+set xtic auto                          # set xtics automatically
+set ytic auto                          # set ytics automatically
+set title "Temps d'execution de quick_sort() en fonction du nombre d'éléments"
+set xlabel "Nombre d'éléments"
+set ylabel "Temps d'execution (en µs)"
+#set term png
+#set output "figure.png"
+plot    "output.dat" using 1:2 with linespoints lc rgb "blue" title "quick_sort()",\
+	"output_par_opt.dat" using 1:2 with linespoints lc rgb "green" title "quick_sort_par_opt (4)",\
+	"output_par_max.dat" using 1:2 with linespoints lc rgb "orange" title "quick_sort_par_max (8)",\
+ 	#"output_par.dat" using 1:2 with linespoints lc rgb "red" title "quick_sort_par()",\
