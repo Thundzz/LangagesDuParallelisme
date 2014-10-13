@@ -1,9 +1,11 @@
-CC=gcc
+CC=mpicc
 CFLAGS=-W -Wall -O2
-LDFLAGS= -pthread
 EXEC=
 
 all: $(EXEC)
+
+%.out: %.o
+	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) -o $@ -c $< $(CFLAGS)

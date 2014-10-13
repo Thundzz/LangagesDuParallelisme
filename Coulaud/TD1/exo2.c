@@ -3,12 +3,10 @@
 #include "mpi.h"
 
 #define SIZE 10000
-int main( int argc, char **argv ) {
-  int i;
+int main() {
   int message = 0, recu, size; 
   int myrank; 
   MPI_Status status; 
-  int count;
   MPI_Init( NULL, NULL ); 
   MPI_Comm_rank( MPI_COMM_WORLD, &myrank); 
   MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -23,4 +21,5 @@ int main( int argc, char **argv ) {
     printf("%d reçu, je suis: %d\n", recu, myrank); 
   }
   MPI_Finalize();
+  return 0;
 } 
