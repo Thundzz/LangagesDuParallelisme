@@ -30,6 +30,7 @@
 
 #Output images
 *.png
+*.jpg
 
 #Output data files
 *.dat
