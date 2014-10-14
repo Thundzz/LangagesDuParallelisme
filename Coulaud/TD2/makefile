@@ -1,9 +1,12 @@
 CC=mpicc
 CFLAGS=-W -Wall -O2
 EXEC=matrix.out
-
+PBS=matrix.pbs
 all: $(EXEC)
 
+sub:
+	qsub $(PBS)
+	
 %.out: %.o
 	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
