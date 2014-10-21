@@ -40,6 +40,7 @@ int main() {
   MPI_Type_struct(1, blocklen, disp, type, &Particletype); 
   MPI_Type_commit(&Particletype);
 
+
   if (myrank == 0)/* code for process zero */ { 
 	fprintf(stderr, "Before send\n");
     MPI_Send(&p, 1, Particletype, 1, 99, MPI_COMM_WORLD);
