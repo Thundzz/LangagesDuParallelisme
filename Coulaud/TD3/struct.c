@@ -24,9 +24,8 @@ int main() {
   MPI_Aint disp[6];
   Particle p;
   Particle recvd;
-  p.pos[0] = 420;
-  p.pos[1] = 2.0;
-  p.pos[2] = 1.0;
+  p.pos = {420, 2.0, 1.0};
+
 
   MPI_Get_address(&p, &i1); 
   MPI_Get_address(&p.pos[0], &i2); disp[0] = i2 - i1 ; 
