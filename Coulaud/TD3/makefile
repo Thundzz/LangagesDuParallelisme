@@ -1,7 +1,7 @@
 CC=mpicc
 CFLAGS=-W -Wall -O2
-EXEC=struct.out
-PBS=struct.pbs
+EXEC=comm.out
+PBS=comm.pbs
 all: $(EXEC)
 
 send:
