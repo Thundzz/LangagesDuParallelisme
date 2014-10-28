@@ -3,9 +3,9 @@
 #include "mpi.h"
 
 int main() {
-  int myrank, newrank; 
-  MPI_Init( NULL, NULL ); 
-  MPI_Comm_rank( MPI_COMM_WORLD, &myrank ); 
+	int myrank, newrank; 
+	MPI_Init( NULL, NULL ); 
+	MPI_Comm_rank( MPI_COMM_WORLD, &myrank ); 
 
 	MPI_Comm comm, interComm1, interComm2;
 	int color = myrank % 3;
@@ -18,9 +18,9 @@ int main() {
 	}
 	if(color ==1 || color ==0)
 	{
-  	MPI_Comm_rank( interComm1, &newrank); 
-  	printf("I am process number %d in COMM_WORLD\nAnd number %d in interComm1\n\n", myrank, newrank);
+		MPI_Comm_rank( interComm1, &newrank); 
+		printf("I am process number %d in COMM_WORLD\nAnd number %d in interComm1\n\n", myrank, newrank);
 	}
-  MPI_Finalize();
-  return 0;
+	MPI_Finalize();
+	return 0;
 } 
