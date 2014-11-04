@@ -1,6 +1,6 @@
 CC=mpicc
 CFLAGS=-W -Wall -O2 -std=c99
-EXEC=comm1d.out
+EXEC=comm1d.out slave.out master.out scatter.out
 PBS=scatter.pbs
 all: $(EXEC)
 
