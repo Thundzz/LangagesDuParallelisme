@@ -1,6 +1,8 @@
+DEBUG= -DDEBUG
 CC=mpicc
 CFLAGS=-W -Wall -O2 -std=c99 -lm
 EXEC=master.out slave.out
+OBJS=shared.o
 PBS=scatter.pbs
 all: $(EXEC)
 
@@ -12,11 +14,11 @@ sub:
 load:
 	module add compiler/gcc/4.9.0 mpi/openmpi/1.8.1 
 
-%.out: %.o
-	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
+%.out: %.o $(OBJS)
+	$(CC) -o $@ $? $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(CFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS) $(DEBUG)
 	
 
 clean:
