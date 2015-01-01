@@ -16,6 +16,11 @@
  */
 int * alloc_table(char * alphabet);
 
+
+/* Checks for the validity of the passed alphabet.
+ */
+int is_valid(char * alphabet);
+
 /* Allocates the memory for the reverse encoding
  * table
  */
@@ -24,7 +29,7 @@ char * alloc_rev_table();
 /* Allocates and computes an encoding
  * table for the passed alphabet
  */
-void encoding_table(char *alphabet, int *table, char *rev_table);
+int encoding_table(char *alphabet, int *table, char *rev_table);
 
 /* Encodes a word using the table passed as argument.
  * The returned int is the encoded value of the word.

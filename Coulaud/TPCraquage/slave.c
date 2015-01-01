@@ -9,20 +9,26 @@
 
 int main(int argc, char* argv[])
 {
-	if (argc != 6){
-		fprintf(stderr, "Expecting syntax: "EXECNAME
-			" nb_proc nb_thread alphabet max_lgth password\n");
-		exit(EXIT_FAILURE);
-	}
+	#ifdef DEBUG
+		if (argc != 7){
+			fprintf(stderr, "Expecting syntax: "EXECNAME
+				" nb_proc nb_thread alphabet max_lgth password\n");
+			for (int i = 0; i < 7; ++i)
+			{
+				fprintf(stderr, "Argument %i: %s\n",i, argv[i]);
+			}
+			exit(EXIT_FAILURE);
+		}
+	#endif
 	int myrank;
 	MPI_Init( NULL, NULL );
 	MPI_Comm Comm_master; 
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	MPI_Comm_get_parent(&Comm_master);
 
-	int max_lgth = atoi(argv[4]);
-	char * alphabet = argv[3];
-	char * password = argv[5];
+	int max_lgth = atoi(argv[5]);
+	char * alphabet = argv[4];
+	char * password = argv[6];
 	int alphabet_size = strlen(alphabet);
 
 	int *table = alloc_table(alphabet);

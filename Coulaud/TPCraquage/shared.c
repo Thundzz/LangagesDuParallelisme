@@ -25,7 +25,9 @@ char * alloc_rev_table(char * alphabet)
 	return rev_table;
 }
 
-void encoding_table(char *alphabet, int* table, char* rev_table)
+
+
+int encoding_table(char *alphabet, int* table, char* rev_table)
 {
 	int size = strlen(alphabet);
 	for (int i = 0; i < size; ++i)
@@ -36,13 +38,21 @@ void encoding_table(char *alphabet, int* table, char* rev_table)
 			table[cur] = i+1;
 			rev_table[i+1] = (char) cur; 
 		}
-		else
-		{
-			fprintf(stderr, "Alphabet is invalid. (several times the same character)\n");
-			exit(EXIT_FAILURE);
-		}
+		else return 1;
 	}
+	return 0;
 }
+int is_valid(char *alphabet)
+{
+	int * table = alloc_table(alphabet);
+	char * rev_table =alloc_rev_table(alphabet);
+	int valid = (encoding_table(alphabet, table,rev_table) == 0);
+	free(table);
+	free(rev_table);
+	return(valid);
+}
+
+
 
 int encode(int * table, char *  word, int alphabet_size){
 	int size = strlen(word);
