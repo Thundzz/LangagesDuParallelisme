@@ -1,6 +1,8 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+#define MSG_SIZE  2
+#define TASK_TAG 101
 
 #define MAX(a,b) \
    ({ __typeof__ (a) _a = (a); \

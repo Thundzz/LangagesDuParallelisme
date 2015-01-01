@@ -25,6 +25,7 @@ int main(int argc, char* argv[])
 	MPI_Comm Comm_master; 
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	MPI_Comm_get_parent(&Comm_master);
+	MPI_Status st;
 
 	int max_lgth = atoi(argv[5]);
 	char * alphabet = argv[4];
@@ -35,17 +36,22 @@ int main(int argc, char* argv[])
 	char *rev_table = alloc_rev_table(alphabet);
 	encoding_table(alphabet, table, rev_table);
 	char * decoded = malloc(max_lgth* sizeof(char));
+	long msg[MSG_SIZE];
 
-	int first_task = 0;
-	int last_task = 5;
-	for (int task = first_task; task <= last_task; ++task)
-	{
-		decode(rev_table, task, alphabet_size,  decoded);
-		if(!strcmp(decoded, password))
+	while(1){
+		MPI_Recv(msg, MSG_SIZE, MPI_LONG, 0, TASK_TAG, Comm_master, &st);
+		int first_task = msg[0];
+		int last_task = msg[1];
+		for (int task = first_task; task <= last_task; ++task)
 		{
-			// Found !!!
-		}
+			decode(rev_table, task, alphabet_size,  decoded);
+			if(!strcmp(decoded, password))
+			{
+				printf("I found the password !");
+			}
+		}	
 	}
+
 	free(decoded);
 	free(table);
 	free(rev_table);
