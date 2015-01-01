@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
 	}
 
 	int myrank;
+	MPI_Status st;
 	MPI_Request req;
 	MPI_Comm Comm_slaves;
 	MPI_Init( NULL, NULL );
@@ -64,7 +65,18 @@ int main(int argc, char *argv[])
 			if (fin == last_task-1) break;
 		}
 	}
-
+	#ifdef DEBUG
+		fprintf(stderr, "Ending processes.\n");
+	#endif
+	for (int proc = 0; proc < nb_proc-1; ++proc)
+	{
+		MPI_Isend(&msg, MSG_SIZE, MPI_LONG, proc, END_TAG,
+					  Comm_slaves, &req);
+	}
+	for (int proc = 0; proc < nb_proc-1; ++proc)
+	{
+		MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, MPI_ANY_TAG, Comm_slaves, &st);
+	}
 	MPI_Finalize();
 	return 0;
 }
