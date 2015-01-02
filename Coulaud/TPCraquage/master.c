@@ -7,6 +7,7 @@
 #include "shared.h"
 
 #define EXECNAME "./master"
+#define DEFAULT_PROC_NUM 2
 #define SLICE 1024
 
 void pack_msg(long *msg, long debut, long fin)
@@ -23,8 +24,13 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-
-	int nb_proc = MAX(1, atoi(argv[1]));
+	int nb_proc = atoi(argv[1]);
+	if(nb_proc <= 1)
+	{
+		fprintf(stderr, "Proc num of 1 is an invalid value. Defaulting to: %d\n",
+			DEFAULT_PROC_NUM);
+		nb_proc = DEFAULT_PROC_NUM;
+	}
 	int max_lgth = atoi(argv[4]);
 	char * alphabet = argv[3];
 	int a_size = strlen(alphabet);
@@ -47,10 +53,12 @@ int main(int argc, char *argv[])
 	MPI_Comm_spawn("slave.out", argv, nb_slaves, MPI_INFO_NULL,
 				  0, MPI_COMM_SELF, &Comm_slaves,MPI_ERRCODES_IGNORE);
 
-
+	/* For words of increasing length */
 	for (int length = 1; length < max_lgth; ++length)
 	{	
 		int last_task= pow(a_size, length);
+		int workers = 0;
+		/*Send a slice to each process */
 		for (int proc = 0; proc < nb_proc-1; ++proc)
 		{
 			debut= fin+1;
@@ -62,20 +70,26 @@ int main(int argc, char *argv[])
 			#endif
 			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, proc, TASK_TAG,
 					  Comm_slaves, &req);
+			workers ++;
 			if (fin == last_task-1) break;
 		}
+		/* Wait until all the workers have processing this length */
+		for (int proc = 0; proc < workers; ++proc)
+		{
+			MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, TASK_FINISHED_TAG,
+			 Comm_slaves, &st);
+		}
 	}
-	#ifdef DEBUG
-		fprintf(stderr, "Ending processes.\n");
-	#endif
+	/* Tell all slave processes that it's the end. */
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
 		MPI_Isend(&msg, MSG_SIZE, MPI_LONG, proc, END_TAG,
 					  Comm_slaves, &req);
 	}
+	/* Make sure that all slaves have answered with an end tag.*/
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
-		MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, MPI_ANY_TAG, Comm_slaves, &st);
+		MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, END_TAG, Comm_slaves, &st);
 	}
 	MPI_Finalize();
 	return 0;

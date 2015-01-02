@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	MPI_Comm_get_parent(&Comm_master);
 	MPI_Status st;
 	MPI_Request req;
-	
+
 	int max_lgth = atoi(argv[5]);
 	char * alphabet = argv[4];
 	char * password = argv[6];
@@ -56,6 +56,8 @@ int main(int argc, char* argv[])
 					fprintf(stderr, "I found the password !");
 				}
 			}
+			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
+					  Comm_master, &req);
 		}
 		else if(st.MPI_TAG == END_TAG)
 		{

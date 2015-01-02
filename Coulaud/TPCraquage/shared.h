@@ -3,7 +3,8 @@
 
 #define MSG_SIZE  2
 #define TASK_TAG 101
-#define END_TAG 102
+#define TASK_FINISHED_TAG 102
+#define END_TAG 103
 
 #define MAX(a,b) \
    ({ __typeof__ (a) _a = (a); \
