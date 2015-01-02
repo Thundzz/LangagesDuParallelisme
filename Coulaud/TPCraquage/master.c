@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);	
 	}
 
-	int myrank;
+	int myrank, found=0;
 	MPI_Status st;
 	MPI_Request req;
 	MPI_Comm Comm_slaves;
@@ -53,16 +53,17 @@ int main(int argc, char *argv[])
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
 	MPI_Comm_spawn("slave.out", argv, nb_slaves, MPI_INFO_NULL,
 				  0, MPI_COMM_SELF, &Comm_slaves,MPI_ERRCODES_IGNORE);
-
+	int * nb_tasks = (int*) malloc(nb_proc *sizeof(int));
 	/* For words of increasing length */
-	for (int length = 1; length < max_lgth; ++length)
+	for (int length = 1; length <= max_lgth; length++)
 	{	
-		fprintf(stderr, "Processing length : %d\n", length);
 		int last_task= pow(a_size, length)-1;
 		int workers = 0;
-		/*Send a slice to each process */
 		debut= 0, fin = 0;
-		for (int proc = 0; proc < nb_proc-1; ++proc)
+		int proc = 0;
+		nb_tasks = memset(nb_tasks, 0,nb_proc *sizeof(int));
+		/*Send a slice to each process */
+		while(420)
 		{
 			debut= fin;
 			fin += SLICE-1;
@@ -74,15 +75,29 @@ int main(int argc, char *argv[])
 			#endif
 			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, proc, TASK_TAG,
 					  Comm_slaves, &req);
-			workers ++;
+
+			workers= MIN(workers +1, nb_proc-1);
+			nb_tasks[proc] += 1;
+			proc = (proc +1) % (nb_proc-1);
 			if (fin == last_task) break;
 		}
-		/* Wait until all the workers have processing this length */
+		/* Wait until all the workers have finished processing this length */
 		for (int proc = 0; proc < workers; ++proc)
 		{
-			MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, TASK_FINISHED_TAG,
-			 Comm_slaves, &st);
+			for (int i = 0; i < nb_tasks[proc]; ++i)
+			{
+				MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, TASK_FINISHED_TAG,
+				 Comm_slaves, &st);
+				if(msg[0] == SUCCESS)
+				{
+					fprintf(stderr, ANSI_COLOR_GREEN
+						"Process %d found the password !\n"
+						ANSI_COLOR_RESET, myrank);
+					found = 1;
+				}
+			}
 		}
+		if(found) break;
 	}
 	/* Tell all slave processes that it's the end. */
 	for (int proc = 0; proc < nb_proc-1; ++proc)
@@ -94,6 +109,10 @@ int main(int argc, char *argv[])
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
 		MPI_Recv(msg, MSG_SIZE, MPI_LONG, proc, END_TAG, Comm_slaves, &st);
+	}
+	if(!found)
+	{
+		printf(ANSI_COLOR_RED"Could not find the password.\n"ANSI_COLOR_RESET);
 	}
 	MPI_Finalize();
 	return 0;

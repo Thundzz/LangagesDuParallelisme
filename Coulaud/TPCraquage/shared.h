@@ -2,6 +2,10 @@
 #define SHARED_H
 
 #define MSG_SIZE  3
+
+#define NOT_FOUND 404
+#define SUCCESS 200
+
 #define TASK_TAG 101
 #define TASK_FINISHED_TAG 102
 #define END_TAG 103

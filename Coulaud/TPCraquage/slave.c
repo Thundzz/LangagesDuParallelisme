@@ -16,17 +16,15 @@ void unpack_msg(long * msg, long* start, long* end, long* length)
 
 int main(int argc, char* argv[])
 {
-	#ifdef DEBUG
-		if (argc != 7){
-			fprintf(stderr, "Expecting syntax: "EXECNAME
-				" nb_proc nb_thread alphabet max_lgth password\n");
-			for (int i = 0; i < 7; ++i)
-			{
-				fprintf(stderr, "Argument %i: %s\n",i, argv[i]);
-			}
-			exit(EXIT_FAILURE);
+	if (argc != 7){
+		fprintf(stderr, "Expecting syntax: "EXECNAME
+			" nb_proc nb_thread alphabet max_lgth password\n");
+		for (int i = 0; i < 7; ++i)
+		{
+			fprintf(stderr, "Argument %i: %s\n",i, argv[i]);
 		}
-	#endif
+		exit(EXIT_FAILURE);
+	}
 	int myrank;
 	MPI_Init( NULL, NULL );
 	MPI_Comm Comm_master; 
@@ -51,29 +49,26 @@ int main(int argc, char* argv[])
 		if(st.MPI_TAG == TASK_TAG)
 		{
 			unpack_msg(msg, &first_task, &last_task, &length);
-
+			msg[0] = NOT_FOUND;			
 			for (int task = first_task; task <= last_task; ++task)
 			{
 				decode(rev_table, task, alphabet_size,  decoded, length);
 				if(!strcmp(decoded, password))
-				{
+				{	
 					fprintf(stderr, ANSI_COLOR_GREEN
-						"I found the password !: %s\n"
-						ANSI_COLOR_RESET, decoded);
+						"I (Process %d) found the password ! It is: %s\n"
+						ANSI_COLOR_RESET, myrank, decoded);
+					msg[0] = SUCCESS;
 				}
 			}
-			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
-					  Comm_master, &req);
+			MPI_Send(msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
+					  Comm_master);
 		}
 		else if(st.MPI_TAG == END_TAG)
 		{
 			finished = 1;
 			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, 0, END_TAG,
 					  Comm_master, &req);
-			#ifdef DEBUG
-				fprintf(stderr, "Process n°%d received end"
-				 				" message. Shutting down.\n", myrank);
-			#endif
 		}
 	}
 	free(decoded);

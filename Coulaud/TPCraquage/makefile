@@ -1,4 +1,4 @@
-DEBUG= -DDEBUG
+DEBUG= #-DDEBUG
 CC=mpicc
 CFLAGS=-W -Wall -O2 -std=c99 -lm
 EXEC=master.out slave.out
