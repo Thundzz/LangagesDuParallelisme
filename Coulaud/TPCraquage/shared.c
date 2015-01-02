@@ -25,6 +25,14 @@ char * alloc_rev_table(char * alphabet)
 	return rev_table;
 }
 
+void print_rev_table(char * rev_table, int alphabet_size)
+{
+	fprintf(stderr, "rev_table\n");
+	for (int i = 0; i < alphabet_size+1; ++i)
+	{
+		fprintf(stderr, "%d \n", rev_table[i]);
+	}
+}
 
 
 int encoding_table(char *alphabet, int* table, char* rev_table)
@@ -35,8 +43,8 @@ int encoding_table(char *alphabet, int* table, char* rev_table)
 		int cur = (int) alphabet[i];
 		if(table[cur] == -1)
 		{
-			table[cur] = i+1;
-			rev_table[i+1] = (char) cur; 
+			table[cur] = i;
+			rev_table[i] = (char) cur; 
 		}
 		else return 1;
 	}
@@ -65,7 +73,7 @@ int encode(int * table, char *  word, int alphabet_size){
 	return code;
 }
 
-void decode(char* rev_table, int encoded, int alphabet_size, char*  decoded){
+void decode(char* rev_table, int encoded, int alphabet_size, char*  decoded, int length){
 	int q, r;
 	int cur = encoded;
 	int i = 0;
@@ -76,6 +84,10 @@ void decode(char* rev_table, int encoded, int alphabet_size, char*  decoded){
 		decoded[i]= rev_table[r];
 		cur = q;
 		i++;
+	}
+	for (int j = 0; j < length-i; ++i)
+	{
+		decoded[i]= rev_table[0];
 	}
 	decoded[i]= '\0';
 }

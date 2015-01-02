@@ -10,10 +10,11 @@
 #define DEFAULT_PROC_NUM 2
 #define SLICE 1024
 
-void pack_msg(long *msg, long debut, long fin)
+void pack_msg(long *msg, long debut, long fin, long length)
 {
 	msg[0]= debut;
 	msg[1]= fin;
+	msg[2]= length;
 }
 
 int main(int argc, char *argv[])
@@ -56,22 +57,25 @@ int main(int argc, char *argv[])
 	/* For words of increasing length */
 	for (int length = 1; length < max_lgth; ++length)
 	{	
-		int last_task= pow(a_size, length);
+		fprintf(stderr, "Processing length : %d\n", length);
+		int last_task= pow(a_size, length)-1;
 		int workers = 0;
 		/*Send a slice to each process */
+		debut= 0, fin = 0;
 		for (int proc = 0; proc < nb_proc-1; ++proc)
 		{
-			debut= fin+1;
+			debut= fin;
 			fin += SLICE-1;
-			fin = MIN(fin, last_task-1);
-			pack_msg(msg, debut, fin);
+			fin = MIN(fin, last_task);
+			pack_msg(msg, debut, fin, (long) length);
 			#ifdef DEBUG
-				fprintf(stderr, "Envoi de %ld-%ld à: %d\n", msg[0], msg[1], proc);
+				fprintf(stderr, "Envoi de %ld-%ld (taille %ld) "
+								"à: %d\n", msg[0], msg[1], msg[2], proc);
 			#endif
 			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, proc, TASK_TAG,
 					  Comm_slaves, &req);
 			workers ++;
-			if (fin == last_task-1) break;
+			if (fin == last_task) break;
 		}
 		/* Wait until all the workers have processing this length */
 		for (int proc = 0; proc < workers; ++proc)

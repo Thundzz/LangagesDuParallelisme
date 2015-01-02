@@ -2,9 +2,10 @@ DEBUG= -DDEBUG
 CC=mpicc
 CFLAGS=-W -Wall -O2 -std=c99 -lm
 EXEC=master.out slave.out
+TEST= test_shared.out
 OBJS=shared.o
 PBS=scatter.pbs
-all: $(EXEC)
+all: $(EXEC) $(TEST)
 
 send:
 	scp * formation:LangagesDuParallelisme/TPCraquage
