@@ -1,12 +1,6 @@
 #!/usr/bin/env ruby
 
-d_alphabet="abcdefghijklmnopqrstuvwxyz"
-d_nbp = 5
-d_nbt = 1
-d_depth= 4
-
 def try_find_password(password, options = {})
-
 	d_alphabet="abcdefghijklmnopqrstuvwxyz"
 	d_nbp = 5
 	d_nbt = 1
@@ -22,5 +16,5 @@ def try_find_password(password, options = {})
 end
 
 
-try_find_password("zizi")
+try_find_password("zaza")
 try_find_password("zizou")
