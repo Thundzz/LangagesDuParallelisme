@@ -8,7 +8,7 @@
 
 #define EXECNAME "./master"
 #define DEFAULT_PROC_NUM 2
-#define SLICE 1024
+#define MIN_SLICE 1024
 
 void pack_msg(long *msg, long debut, long fin, long length)
 {
@@ -36,7 +36,6 @@ int main(int argc, char *argv[])
 	char * alphabet = argv[3];
 	int a_size = strlen(alphabet);
 	int nb_slaves = nb_proc -1;
-	int debut= 0, fin= 0;
 	long msg[MSG_SIZE];
 
 	if(!is_valid(alphabet)){
@@ -57,16 +56,17 @@ int main(int argc, char *argv[])
 	/* For words of increasing length */
 	for (int length = 1; length <= max_lgth; length++)
 	{	
-		int last_task= pow(a_size, length)-1;
-		int workers = 0;
-		debut= 0, fin = 0;
-		int proc = 0;
 		nb_tasks = memset(nb_tasks, 0,nb_proc *sizeof(int));
+		int last_task= pow(a_size, length)-1;
+		int debut= 0, fin = 0, proc = 0, workers = 0;
+		long slice = last_task / nb_proc;
+		slice = MAX(slice, MIN_SLICE);
+		
 		/*Send a slice to each process */
-		while(420)
+		while(true)
 		{
 			debut= fin;
-			fin += SLICE-1;
+			fin += slice-1;
 			fin = MIN(fin, last_task);
 			pack_msg(msg, debut, fin, (long) length);
 			#ifdef DEBUG

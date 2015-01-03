@@ -2,6 +2,10 @@
 #define SHARED_H
 
 #define MSG_SIZE  3
+#define BUFFER_SIZE 1024
+
+#define true 1
+#define false 0
 
 #define NOT_FOUND 404
 #define SUCCESS 200

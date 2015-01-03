@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
+#include <omp.h>
 
 #define EXECNAME "slave.out"
 
@@ -33,23 +34,27 @@ int main(int argc, char* argv[])
 	MPI_Status st;
 	MPI_Request req;
 
-	int max_lgth = atoi(argv[5]);
+	int nb_thread = atoi(argv[3]);
 	char * alphabet = argv[4];
 	char * password = argv[6];
 	int alphabet_size = strlen(alphabet);
+
 	int *table = alloc_table(alphabet);
 	char *rev_table = alloc_rev_table(alphabet);
 	encoding_table(alphabet, table, rev_table);
-	char * decoded = malloc(max_lgth* sizeof(char));
 	long msg[MSG_SIZE];
+	char decoded[BUFFER_SIZE];
 	int finished=0;
+	omp_set_dynamic(0);
+	omp_set_num_threads(nb_thread);
 	long first_task, last_task, length;
 	while(!finished){
 		MPI_Recv(msg, MSG_SIZE, MPI_LONG, 0, MPI_ANY_TAG, Comm_master, &st);
 		if(st.MPI_TAG == TASK_TAG)
 		{
 			unpack_msg(msg, &first_task, &last_task, &length);
-			msg[0] = NOT_FOUND;			
+			msg[0] = NOT_FOUND;
+			#pragma omp parallel for private(decoded)
 			for (int task = first_task; task <= last_task; ++task)
 			{
 				decode(rev_table, task, alphabet_size,  decoded, length);
@@ -61,8 +66,8 @@ int main(int argc, char* argv[])
 					msg[0] = SUCCESS;
 				}
 			}
-			MPI_Send(msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
-					  Comm_master);
+			MPI_Isend(msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
+					  Comm_master, &req);
 		}
 		else if(st.MPI_TAG == END_TAG)
 		{
@@ -71,7 +76,6 @@ int main(int argc, char* argv[])
 					  Comm_master, &req);
 		}
 	}
-	free(decoded);
 	free(table);
 	free(rev_table);
 	MPI_Finalize(); 

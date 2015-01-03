@@ -1,6 +1,6 @@
 DEBUG= #-DDEBUG
 CC=mpicc
-CFLAGS=-W -Wall -O2 -std=c99 -lm
+CFLAGS=-W -Wall -O2 -std=c99 -lm -fopenmp
 EXEC=master.out slave.out
 TEST= test_shared.out
 OBJS=shared.o
