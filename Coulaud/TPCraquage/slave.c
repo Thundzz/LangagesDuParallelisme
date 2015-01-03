@@ -8,7 +8,7 @@
 
 #define EXECNAME "slave.out"
 
-void unpack_msg(long * msg, long* start, long* end, long* length)
+void unpack_msg(unsigned long long * msg, unsigned long long* start, unsigned long long* end, unsigned long long* length)
 {
 	*start = msg[0];
 	*end = msg[1];
@@ -42,20 +42,21 @@ int main(int argc, char* argv[])
 	int *table = alloc_table(alphabet);
 	char *rev_table = alloc_rev_table(alphabet);
 	encoding_table(alphabet, table, rev_table);
-	long msg[MSG_SIZE];
+	unsigned long long msg[MSG_SIZE];
 	char decoded[BUFFER_SIZE];
 	int finished=0;
 	omp_set_dynamic(0);
 	omp_set_num_threads(nb_thread);
-	long first_task, last_task, length;
+	unsigned long long first_task, last_task, length;
 	while(!finished){
-		MPI_Recv(msg, MSG_SIZE, MPI_LONG, 0, MPI_ANY_TAG, Comm_master, &st);
+		MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, 0, MPI_ANY_TAG, Comm_master, &st);
 		if(st.MPI_TAG == TASK_TAG)
 		{
 			unpack_msg(msg, &first_task, &last_task, &length);
 			msg[0] = NOT_FOUND;
+			unsigned long long task;
 			#pragma omp parallel for private(decoded)
-			for (int task = first_task; task <= last_task; ++task)
+			for (task = first_task; task <= last_task; ++task)
 			{
 				decode(rev_table, task, alphabet_size,  decoded, length);
 				if(!strcmp(decoded, password))
@@ -66,13 +67,13 @@ int main(int argc, char* argv[])
 					msg[0] = SUCCESS;
 				}
 			}
-			MPI_Isend(msg, MSG_SIZE, MPI_LONG, 0, TASK_FINISHED_TAG,
+			MPI_Isend(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, 0, TASK_FINISHED_TAG,
 					  Comm_master, &req);
 		}
 		else if(st.MPI_TAG == END_TAG)
 		{
 			finished = 1;
-			MPI_Isend(&msg, MSG_SIZE, MPI_LONG, 0, END_TAG,
+			MPI_Isend(&msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, 0, END_TAG,
 					  Comm_master, &req);
 		}
 	}

@@ -62,9 +62,9 @@ int is_valid(char *alphabet)
 
 
 
-int encode(int * table, char *  word, int alphabet_size){
+unsigned long long encode(int * table, char *  word, int alphabet_size){
 	int size = strlen(word);
-	int code = 0;
+	unsigned long long code = 0;
 	for (int i = 0; i < size; ++i)
 	{
 		int current= (int) word[i];
@@ -73,9 +73,9 @@ int encode(int * table, char *  word, int alphabet_size){
 	return code;
 }
 
-void decode(char* rev_table, int encoded, int alphabet_size, char*  decoded, int length){
+void decode(char* rev_table, unsigned long long encoded, int alphabet_size, char*  decoded, int length){
 	int q, r;
-	int cur = encoded;
+	unsigned long long cur = encoded;
 	int i = 0;
 	while(cur != 0)
 	{

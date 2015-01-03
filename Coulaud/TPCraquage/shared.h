@@ -54,13 +54,13 @@ int encoding_table(char *alphabet, int *table, char *rev_table);
 /* Encodes a word using the table passed as argument.
  * The returned int is the encoded value of the word.
  */
-int encode(int* table, char*  word, int alphabet_size);
+unsigned long long encode(int* table, char*  word, int alphabet_size);
 
 
 /* Decodes the integer contained in the variable encoded.
  * The decoded word is written at the address pointed by
  * the variable named decoded.
  */
-void decode(char* rev_table, int encoded, int alphabet_size, char*  decoded, int length);
+void decode(char* rev_table, unsigned long long encoded, int alphabet_size, char*  decoded, int length);
 
 #endif
