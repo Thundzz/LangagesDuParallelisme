@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 				{
 					fprintf(stderr, ANSI_COLOR_GREEN
 						"Process %d found the password !\n"
-						ANSI_COLOR_RESET, myrank);
+						ANSI_COLOR_RESET, proc);
 					found = 1;
 				}
 			}
