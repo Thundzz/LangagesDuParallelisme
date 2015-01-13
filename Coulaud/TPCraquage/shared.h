@@ -1,8 +1,10 @@
 #ifndef SHARED_H
 #define SHARED_H
 
+
 #define MSG_SIZE  3
 #define BUFFER_SIZE 1024
+#define MIN_SLICE 1024
 
 #define true 1
 #define false 0

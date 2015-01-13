@@ -5,9 +5,9 @@
 #include <math.h>
 #include <string.h>
 #include <mpi.h>
+#include <sys/time.h>
 
 #define EXECNAME "./master"
-#define MIN_SLICE 1024
 
 int main(int argc, char *argv[])
 {
@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 	int nb_proc = atoi(argv[1]);
 	if(nb_proc <= 1)
 	{
-		fprintf(stderr, "Proc number of 1 is an invalid value. Defaulting to: %d\n",
+		fprintf(stderr, "1 process is an invalid value. Defaulting to: %d\n",
 			DEFAULT_PROC_NUM);
 		nb_proc = DEFAULT_PROC_NUM;
 
@@ -44,14 +44,16 @@ int main(int argc, char *argv[])
 						"(Encountered multiple times the same character)\n");
 		exit(EXIT_FAILURE);	
 	}
-
-	int myrank, found=0;
+    struct timeval tvalBefore, tvalAfter; 
+  	gettimeofday (&tvalBefore, NULL);
+	int myrank, found=false;
+	unsigned long long total=0;
 	MPI_Status st;
 	MPI_Request req;
 	MPI_Comm Comm_slaves;
 	MPI_Init( NULL, NULL );
 	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
-	MPI_Comm_spawn("slave.out", argv, nb_slaves, MPI_INFO_NULL,
+	MPI_Comm_spawn("./slave.out", argv, nb_slaves, MPI_INFO_NULL,
 				  0, MPI_COMM_SELF, &Comm_slaves,MPI_ERRCODES_IGNORE);
 	int * nb_tasks = (int*) malloc(nb_proc *sizeof(int));
 	/* For words of increasing length */
@@ -64,6 +66,7 @@ int main(int argc, char *argv[])
 		int proc = 0, workers = 0;
 		unsigned long slice = MAX((last_task+2*nb_slaves)/nb_slaves,
 								 (unsigned) MIN_SLICE);
+		total+= last_task;
 		/*Send a slice to each process */
 		while(true)
 		{
@@ -92,7 +95,7 @@ int main(int argc, char *argv[])
 					fprintf(stderr, ANSI_COLOR_GREEN
 						"Process %d found the password !\n"
 						ANSI_COLOR_RESET, archimede);
-					found = 1;
+					found = true;
 				}
 				if(found) break;
 			}
@@ -111,12 +114,22 @@ int main(int argc, char *argv[])
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
 		if(proc == archimede) continue;
-		MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, END_TAG, Comm_slaves, &st);
+		MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, END_TAG,
+					 Comm_slaves, &st);
 	}
+
 	if(!found)
 	{
-		printf(ANSI_COLOR_RED"Could not find the password.\n"ANSI_COLOR_RESET);
+		printf(ANSI_COLOR_RED
+			   "Could not find the password.\n"
+			   ANSI_COLOR_RESET);
 	}
+  	gettimeofday (&tvalAfter, NULL);
+	long int timeus= ((tvalAfter.tv_sec - tvalBefore.tv_sec)*1000000L 
+					+tvalAfter.tv_usec) - tvalBefore.tv_usec;
+	double times = ((double)timeus)/1000000.0;
+	double wps = (double)total/times;
+    printf("%lld words processed in %g seconds (%g w/s)\n", total, times, wps);
 	MPI_Finalize();
 	return 0;
 }
