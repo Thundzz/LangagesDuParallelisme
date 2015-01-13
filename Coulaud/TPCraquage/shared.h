@@ -7,6 +7,8 @@
 #define true 1
 #define false 0
 
+#define UNUSED(x) (void)(x)
+
 #define NOT_FOUND 404
 #define SUCCESS 200
 
@@ -65,5 +67,16 @@ unsigned long long encode(int* table, char*  word, int alphabet_size);
  * the variable named decoded.
  */
 void decode(char* rev_table, unsigned long long encoded, int alphabet_size, char*  decoded, int length);
+
+
+void pack_msg(unsigned long long *msg,
+			  unsigned long long debut,
+			  unsigned long long fin,
+			  unsigned long long length);
+
+void unpack_msg(unsigned long long * msg,
+			    unsigned long long* start,
+			    unsigned long long* end,
+			    unsigned long long* length);
 
 #endif

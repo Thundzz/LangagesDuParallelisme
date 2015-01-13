@@ -1,23 +1,13 @@
+#include "shared.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <math.h>
 #include <string.h>
 #include <mpi.h>
-#include "shared.h"
 
 #define EXECNAME "./master"
 #define MIN_SLICE 1024
-
-void pack_msg(unsigned long long *msg,
-			  unsigned long long debut,
-			  unsigned long long fin,
-			  unsigned long long length)
-{
-	msg[0]= debut;
-	msg[1]= fin;
-	msg[2]= length;
-}
 
 int main(int argc, char *argv[])
 {

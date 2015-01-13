@@ -91,3 +91,24 @@ void decode(char* rev_table, unsigned long long encoded, int alphabet_size, char
 	}
 	decoded[i]= '\0';
 }
+
+
+void pack_msg(unsigned long long *msg,
+			  unsigned long long debut,
+			  unsigned long long fin,
+			  unsigned long long length)
+{
+	msg[0]= debut;
+	msg[1]= fin;
+	msg[2]= length;
+}
+
+void unpack_msg(unsigned long long * msg,
+			    unsigned long long* start,
+			    unsigned long long* end,
+			    unsigned long long* length)
+{
+	*start = msg[0];
+	*end = msg[1];
+	*length = msg[2];
+}
