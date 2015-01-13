@@ -9,7 +9,10 @@
 #define EXECNAME "./master"
 #define MIN_SLICE 1024
 
-void pack_msg(unsigned long long *msg, unsigned long long debut, unsigned long long fin, unsigned long long length)
+void pack_msg(unsigned long long *msg,
+			  unsigned long long debut,
+			  unsigned long long fin,
+			  unsigned long long length)
 {
 	msg[0]= debut;
 	msg[1]= fin;
@@ -62,15 +65,15 @@ int main(int argc, char *argv[])
 				  0, MPI_COMM_SELF, &Comm_slaves,MPI_ERRCODES_IGNORE);
 	int * nb_tasks = (int*) malloc(nb_proc *sizeof(int));
 	/* For words of increasing length */
+	int archimede = nb_slaves +1;
 	for (unsigned int length = 1; length <= max_lgth; length++)
 	{	
 		nb_tasks = memset(nb_tasks, 0,nb_proc *sizeof(int));
 		unsigned long long last_task= pow(a_size, length)-1;
 		unsigned long long debut= 0, fin = 0;
 		int proc = 0, workers = 0;
-		long slice = last_task / nb_proc;
-		slice = MAX(slice, MIN_SLICE);
-
+		unsigned long slice = MAX((last_task+2*nb_slaves)/nb_slaves,
+								 (unsigned) MIN_SLICE);
 		/*Send a slice to each process */
 		while(true)
 		{
@@ -78,14 +81,10 @@ int main(int argc, char *argv[])
 			fin += slice-1;
 			fin = MIN(fin, last_task);
 			pack_msg(msg, debut, fin, (unsigned long long) length);
-			#ifdef DEBUG
-				fprintf(stderr, "Envoi de %ld-%ld (taille %ld) "
-								"à: %d\n", msg[0], msg[1], msg[2], proc);
-			#endif
 			MPI_Isend(&msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, TASK_TAG,
 					  Comm_slaves, &req);
 
-			workers= MIN(workers +1, nb_proc-1);
+			workers= MIN(workers +1, nb_slaves);
 			nb_tasks[proc] += 1;
 			proc = (proc +1) % (nb_proc-1);
 			if (fin == last_task) break;
@@ -95,28 +94,33 @@ int main(int argc, char *argv[])
 		{
 			for (int i = 0; i < nb_tasks[proc]; ++i)
 			{
-				MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, TASK_FINISHED_TAG,
-				 Comm_slaves, &st);
+				MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG,
+				 MPI_ANY_SOURCE, TASK_FINISHED_TAG, Comm_slaves, &st);
 				if(msg[0] == SUCCESS)
 				{
+					archimede = msg[1];
 					fprintf(stderr, ANSI_COLOR_GREEN
 						"Process %d found the password !\n"
-						ANSI_COLOR_RESET, proc);
+						ANSI_COLOR_RESET, archimede);
 					found = 1;
 				}
+				if(found) break;
 			}
+			if(found) break;	
 		}
 		if(found) break;
 	}
 	/* Tell all slave processes that it's the end. */
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
+		if(proc == archimede) continue;
 		MPI_Isend(&msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, END_TAG,
 					  Comm_slaves, &req);
 	}
 	/* Make sure that all slaves have answered with an end tag.*/
 	for (int proc = 0; proc < nb_proc-1; ++proc)
 	{
+		if(proc == archimede) continue;
 		MPI_Recv(msg, MSG_SIZE, MPI_UNSIGNED_LONG_LONG, proc, END_TAG, Comm_slaves, &st);
 	}
 	if(!found)
