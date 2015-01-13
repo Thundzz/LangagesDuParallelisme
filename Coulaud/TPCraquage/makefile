@@ -3,8 +3,9 @@ CC=mpicc
 CFLAGS=-W -Wall -O2 -std=c99 -lm -fopenmp
 EXEC=master.out slave.out
 TEST= test_shared.out
-OBJS=shared.o
+OBJS=shared.o queue.o
 PBS=scatter.pbs
+
 all: $(EXEC) $(TEST)
 
 send:

@@ -10,6 +10,9 @@
 #define NOT_FOUND 404
 #define SUCCESS 200
 
+#define DEFAULT_PROC_NUM 2
+#define DEFAULT_THREAD_NUM 2
+
 #define TASK_TAG 101
 #define TASK_FINISHED_TAG 102
 #define END_TAG 103

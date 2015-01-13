@@ -7,7 +7,6 @@
 #include "shared.h"
 
 #define EXECNAME "./master"
-#define DEFAULT_PROC_NUM 2
 #define MIN_SLICE 1024
 
 void pack_msg(unsigned long long *msg, unsigned long long debut, unsigned long long fin, unsigned long long length)
@@ -28,10 +27,19 @@ int main(int argc, char *argv[])
 	int nb_proc = atoi(argv[1]);
 	if(nb_proc <= 1)
 	{
-		fprintf(stderr, "Proc num of 1 is an invalid value. Defaulting to: %d\n",
+		fprintf(stderr, "Proc number of 1 is an invalid value. Defaulting to: %d\n",
 			DEFAULT_PROC_NUM);
 		nb_proc = DEFAULT_PROC_NUM;
+
 	}
+	int nb_thread = atoi(argv[2]);
+	if(nb_thread <= 1)
+	{
+		fprintf(stderr, "1 thread is an invalid value. Defaulting to: %d\n",
+			DEFAULT_THREAD_NUM);
+		nb_thread = DEFAULT_THREAD_NUM;
+	}
+
 	unsigned max_lgth = atoi(argv[4]);
 	char * alphabet = argv[3];
 	int a_size = strlen(alphabet);
