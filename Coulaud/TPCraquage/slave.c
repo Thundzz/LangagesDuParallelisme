@@ -30,13 +30,12 @@ int main(int argc, char* argv[])
 	Queue* tasks = queue_init(2);
 	encoding_table(alphabet, table, rev_table);
 	unsigned long long msg[MSG_SIZE];
-	char decoded[BUFFER_SIZE];
-
 	int finished= false;
 
 	omp_lock_t queuelock;
 	omp_init_lock(&queuelock);
 	omp_set_dynamic(0);
+	omp_set_nested(1);
 	omp_set_num_threads(nb_thread);
 	#pragma omp parallel sections shared(finished)
 	{
@@ -92,13 +91,15 @@ int main(int argc, char* argv[])
 					last_task = t.last;
 					length = t.length;
 					unsigned long long cur;
-					#pragma omp parallel for
+					#pragma omp parallel for shared(rev_table, alphabet_size, first_task, last_task, length)
 					for (cur = first_task; cur <= last_task; ++cur)
 					{
 						if(finished) continue;
+						char decoded[BUFFER_SIZE];
 						decode(rev_table, cur, alphabet_size, decoded, length);
 						if(!strcmp(decoded, password))
 						{	
+
 							fprintf(stderr, ANSI_COLOR_GREEN
 								"I (Proc. %d) found the password! It is: %s\n"
 								ANSI_COLOR_RESET, myrank, decoded);

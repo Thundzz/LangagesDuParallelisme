@@ -56,8 +56,8 @@ int main(int argc, char *argv[])
 	MPI_Comm_spawn("./slave.out", argv, nb_slaves, MPI_INFO_NULL,
 				  0, MPI_COMM_SELF, &Comm_slaves,MPI_ERRCODES_IGNORE);
 	int * nb_tasks = (int*) malloc(nb_proc *sizeof(int));
-	/* For words of increasing length */
 	int archimede = nb_slaves +1;
+	/* For words of increasing length */
 	for (unsigned int length = 1; length <= max_lgth; length++)
 	{	
 		nb_tasks = memset(nb_tasks, 0,nb_proc *sizeof(int));
