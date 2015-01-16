@@ -6,6 +6,10 @@ TEST= test_shared.out
 OBJS=shared.o queue.o
 PBS=scatter.pbs
 
+# Uncomment for benchmarks.
+BENCH = -DBENCH
+
+
 all: $(EXEC) $(TEST)
 
 send:
@@ -20,8 +24,8 @@ load:
 	$(CC) -o $@ $? $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(CFLAGS) $(DEBUG)
+	$(CC) -o $@ -c $< $(CFLAGS) $(DEBUG) $(BENCH)
 	
 
 clean:
-	rm -rf *.o *~ *# *.out *.[oe]* *.[oe][1-9]*
+	rm -rf *.o *~ *# *.out *.[oe]* *.[oe][1-9]* *.dat
