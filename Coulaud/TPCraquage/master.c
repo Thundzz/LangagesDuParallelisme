@@ -130,6 +130,21 @@ int main(int argc, char *argv[])
 	double times = ((double)timeus)/1000000.0;
 	double wps = (double)total/times;
     printf("%lld words processed in %g seconds (%g w/s)\n", total, times, wps);
+
+#ifdef BENCH
+	char tname[30], wpsname[30];
+	sprintf(tname, "time_%d_%d_%d.dat", nb_proc,nb_thread, max_lgth);
+	sprintf(wpsname, "wps_%d_%d_%d.dat", nb_proc,nb_thread, max_lgth);
+	FILE* f = fopen(tname, "w");
+	if(f != NULL)
+		fprintf(f, "%ld", timeus);
+	fclose(f);
+	FILE* f2 = fopen(wpsname, "w");
+	if(f2 != NULL)
+		fprintf(f2, "%g", wps);
+	fclose(f2);
+#endif
+
 	MPI_Finalize();
 	return 0;
 }
